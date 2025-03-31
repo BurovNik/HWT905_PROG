@@ -542,7 +542,9 @@ int main(int argc, char *argv[])
 	{
 		// TODO тут будет проверка подключения клиента
 
-		
+
+
+
 		read_bytes = read(serial_port, buffer, 50);
 		if(read_bytes != -1)
 		{	
