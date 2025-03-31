@@ -21,6 +21,7 @@ struct command_elem
 
 TAILQ_HEAD(headname, command_elem);
 int serial_port;
+int server_fd, client_socket;
 uart_args uart_args_values;
 ringBuffer readRingBuffer;
 
@@ -393,6 +394,9 @@ void cleanup(int signaln)
 	free(uart_args_values.values);
 	free(readRingBuffer.buffer);
 
+	close(server_fd);
+	// close(client_socket);
+
 	exit(0); // Завершаем программу
 }
 
@@ -461,17 +465,29 @@ int main(int argc, char *argv[])
     sem_t *mutex_sem;
     int fd_shm;
     char mybuf [1024];
+	
+	// TCP данные 
 
+    struct sockaddr_in address;
+    int opt = 1;
+    int addrlen = sizeof(address);
+    char tcp_buffer[1024] = {0};
 
+	// Запуск сервера
+	if (start_TCP_server(&server_fd, &address, &opt, &addrlen) < 0)
+	{
+		printf("Ошибка запуска сервера");
+		exit(EXIT_FAILURE);
+	}
+	printf("Усешный запуск сервера\n");
 
-
-
-   if (open_serial_port(path, &serial_port) < 0)
-   {
+	// Открытие порта
+	if (open_serial_port(path, &serial_port) < 0)
+    {
 		printf("Ошибка открытия порта");
 		exit(EXIT_FAILURE);
-   }
-    printf("Access open serial port\n");
+    }
+	printf("Успешное открытие порта\n");
 
 
 	uint8_t buffer[130];
@@ -541,7 +557,28 @@ int main(int argc, char *argv[])
 	while (true) // TODO изменить бесконечный цикл???
 	{
 		// TODO тут будет проверка подключения клиента
+		// Принимаем новое подключение
+        if ((client_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen)) < 0) {
+            perror("accept");
+            continue;
+        }
+        
+        printf("Новое подключение от %s\n", inet_ntoa(address.sin_addr));
+        
+        // Читаем запрос от клиента
+        read(client_socket, buffer, 1024);
+        printf("Получен запрос: %s\n", buffer);
 
+		if (strstr(buffer, "GET_DATA") != NULL)
+		{
+			send_data(uart_args_values.values, client_socket);
+		} 
+
+		else 
+		{
+            const char *error_msg = "Ошибка: неизвестная команда. Используйте GET_DATA\n";
+            send(client_socket, error_msg, strlen(error_msg), 0);
+        }
 
 
 
@@ -594,6 +631,7 @@ int main(int argc, char *argv[])
 			// if(sem_post(mutex_sem) == -1)
 			// 	error("sem_post: mutex_sem");
 		}
+		close(client_socket); // закрытие соединения с клиентом 
 	}
    	
     // if (pthread_create(&uart_pthread, NULL, uart_pthread_function, (void*) &uart_args_values) < 0) {
@@ -619,5 +657,6 @@ int main(int argc, char *argv[])
 	free(uart_args_values.values);
 	free(readRingBuffer.buffer);
 	close(serial_port);
+	close(server_fd);
     return 0;
 }
