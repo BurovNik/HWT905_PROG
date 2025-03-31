@@ -78,4 +78,24 @@ enum REQUEST_REGISTERS {
     ANGLE_REQ = 0x08,
     MAGNETIC_REQ = 0x10
 };
+
+
+typedef struct 
+{
+    uint8_t YY;
+    uint8_t MM;
+    uint8_t DD;
+    uint8_t hh;
+    uint8_t mm;
+    uint8_t ss;
+    uint16_t ms;
+    double acceleration[3];
+    double angularVelocity[3];
+    double temperature;
+    float angle[3];
+    uint16_t magneta[3];
+    double quaterion[4];
+    uint16_t version;
+}hwt905_values;
+
 #endif

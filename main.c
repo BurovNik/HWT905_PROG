@@ -1,24 +1,7 @@
 #include "ringBuffer.h"
 #include "hwt905.h"
 #include "defines.h"
-
-typedef struct 
-{
-    uint8_t YY;
-    uint8_t MM;
-    uint8_t DD;
-    uint8_t hh;
-    uint8_t mm;
-    uint8_t ss;
-    uint16_t ms;
-    double acceleration[3];
-    double angularVelocity[3];
-    double temperature;
-    float angle[3];
-    uint16_t magneta[3];
-    double quaterion[4];
-    uint16_t version;
-}hwt905_values;
+#include "ports.h"
 
 typedef struct 
 {
@@ -433,12 +416,6 @@ bool find_msg_beginning(ringBuffer* ringBuffer)
 }
 
 
-// bool calibration(int *serial_port)
-// {
-
-
-// }
-
 // Print system error and exit
 void error(char *msg)
 {
@@ -563,6 +540,9 @@ int main(int argc, char *argv[])
 	//for(int i = 0; i < 1000; i++)
 	while (true) // TODO изменить бесконечный цикл???
 	{
+		// TODO тут будет проверка подключения клиента
+
+		
 		read_bytes = read(serial_port, buffer, 50);
 		if(read_bytes != -1)
 		{	
