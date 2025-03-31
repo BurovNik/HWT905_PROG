@@ -405,7 +405,7 @@ void function_run(size_t (*func)(uint8_t *const, const size_t), int serial_port,
 
 void cleanup(int signaln)
 {
-	sd_journal_print(LOG_INFO,"Process hwt905 ending\n");
+	printf("Process hwt905 ending\n");
 	close(serial_port);
 	free(uart_args_values.values);
 	free(readRingBuffer.buffer);
@@ -608,9 +608,9 @@ int main(int argc, char *argv[])
 				uart_args_values.values->angularVelocity[0],  uart_args_values.values->angularVelocity[1],  uart_args_values.values->angularVelocity[2],
 				uart_args_values.values->temperature);
 
-			// Release mutex sem: V(mutex_sem)
-			if(sem_post(mutex_sem) == -1)
-				error("sem_post: mutex_sem");
+			// // Release mutex sem: V(mutex_sem)
+			// if(sem_post(mutex_sem) == -1)
+			// 	error("sem_post: mutex_sem");
 		}
 	}
    	

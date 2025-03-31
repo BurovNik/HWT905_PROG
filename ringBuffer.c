@@ -69,7 +69,7 @@ void print_ring_buffer(ringBuffer *ringBuffer)
         
     }
     text[ringBuffer->bytes_avail] = '\n';
-    sd_journal_print(LOG_INFO,"%s", text);
+    printf("%s", text);
     
 }
 
