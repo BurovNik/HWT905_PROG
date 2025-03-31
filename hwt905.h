@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef HWT905SETTINGS_H
 #define HWT905SETTINGS_H
 
@@ -18,7 +20,9 @@
 
 #include <stdint.h>
 #include <signal.h>
-const float G = 9.8;
+
+
+
 
 enum REGISTER_ADDRESS {
     SAVE = 0x00, // Сохранить

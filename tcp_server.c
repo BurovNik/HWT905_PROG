@@ -1,5 +1,4 @@
 #include "ports.h"
-#include <stdlib.h>
 
 
 bool start_TCP_server(int *server_fd, struct sockaddr_in *address, int *opt, int *adrlen)

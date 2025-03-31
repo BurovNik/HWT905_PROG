@@ -25,6 +25,8 @@ int server_fd, client_socket;
 uart_args uart_args_values;
 ringBuffer readRingBuffer;
 
+const float G = 9.8;
+
 
 void delete_command_elem(struct headname *headp) {
 	
@@ -556,31 +558,6 @@ int main(int argc, char *argv[])
 	//for(int i = 0; i < 1000; i++)
 	while (true) // TODO изменить бесконечный цикл???
 	{
-		// TODO тут будет проверка подключения клиента
-		// Принимаем новое подключение
-        if ((client_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen)) < 0) {
-            perror("accept");
-            continue;
-        }
-        
-        printf("Новое подключение от %s\n", inet_ntoa(address.sin_addr));
-        
-        // Читаем запрос от клиента
-        read(client_socket, buffer, 1024);
-        printf("Получен запрос: %s\n", buffer);
-
-		if (strstr(buffer, "GET_DATA") != NULL)
-		{
-			send_data(uart_args_values.values, client_socket);
-		} 
-
-		else 
-		{
-            const char *error_msg = "Ошибка: неизвестная команда. Используйте GET_DATA\n";
-            send(client_socket, error_msg, strlen(error_msg), 0);
-        }
-
-
 
 		read_bytes = read(serial_port, buffer, 50);
 		if(read_bytes != -1)
@@ -631,7 +608,33 @@ int main(int argc, char *argv[])
 			// if(sem_post(mutex_sem) == -1)
 			// 	error("sem_post: mutex_sem");
 		}
-		close(client_socket); // закрытие соединения с клиентом 
+
+		// TODO тут будет проверка подключения клиента
+		
+		// Принимаем новое подключение
+        if ((client_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen)) < 0) {
+            perror("accept");
+            continue;
+        }
+        
+        printf("Новое подключение от %s\n", inet_ntoa(address.sin_addr));
+        
+        // Читаем запрос от клиента
+        read(client_socket, tcp_buffer, 1024);
+        printf("Получен запрос: %s\n", tcp_buffer);
+
+		if (strstr(tcp_buffer, "GET_DATA") != NULL)
+		{
+			send_data(uart_args_values.values, client_socket);
+		} 
+
+		else 
+		{
+            const char *error_msg = "Ошибка: неизвестная команда. Используйте GET_DATA\n";
+            send(client_socket, error_msg, strlen(error_msg), 0);
+        }
+
+		// close(client_socket); // закрытие соединения с клиентом 
 	}
    	
     // if (pthread_create(&uart_pthread, NULL, uart_pthread_function, (void*) &uart_args_values) < 0) {
