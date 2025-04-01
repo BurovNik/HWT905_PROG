@@ -555,6 +555,11 @@ int main(int argc, char *argv[])
 
 	int count = 0;
 
+	// Принимаем новое подключение
+	if ((client_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen)) < 0) {
+        perror("accept");
+    }
+
 	//for(int i = 0; i < 1000; i++)
 	while (true) // TODO изменить бесконечный цикл???
 	{
@@ -595,8 +600,9 @@ int main(int argc, char *argv[])
 			// 	uart_args_values.values->temperature);
 
             // отправка сообщения по TCP 
-            // TODO реализовать отправку по TCP
+            // TODO реализовать отправку по TCPпапа
 
+			send_data(uart_args_values.values, client_socket);
 
 			printf("%d: Данные отправленные в shared memory HWT905 message number = %i | date_time =  %s acceleration (%lf; %lf; %lf), MF (%i; %i; %i), Angular velocity (%lf;%lf;%lf), Temp = %lf\n", 
 				getpid(),count, cp, uart_args_values.values->acceleration[0], uart_args_values.values->acceleration[1], uart_args_values.values->acceleration[2],
@@ -611,28 +617,32 @@ int main(int argc, char *argv[])
 
 		// TODO тут будет проверка подключения клиента
 		
-		// Принимаем новое подключение
-        if ((client_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen)) < 0) {
-            perror("accept");
-            continue;
-        }
+		// // Принимаем новое подключение
+        // if ((client_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen)) < 0) {
+        //     perror("accept");
+        //     continue;
+        // }
         
-        printf("Новое подключение от %s\n", inet_ntoa(address.sin_addr));
+        // printf("Новое подключение от %s\n", inet_ntoa(address.sin_addr));
         
-        // Читаем запрос от клиента
-        read(client_socket, tcp_buffer, 1024);
-        printf("Получен запрос: %s\n", tcp_buffer);
+        // // Читаем запрос от клиента
+        // read(client_socket, tcp_buffer, 1024);
+        // printf("Получен запрос: %s\n", tcp_buffer);
 
-		if (strstr(tcp_buffer, "GET_DATA") != NULL)
-		{
-			send_data(uart_args_values.values, client_socket);
-		} 
-
-		else 
-		{
-            const char *error_msg = "Ошибка: неизвестная команда. Используйте GET_DATA\n";
-            send(client_socket, error_msg, strlen(error_msg), 0);
-        }
+		// if (strstr(tcp_buffer, "GET_DATA") != NULL)
+		// {
+		// 	send_data(uart_args_values.values, client_socket);
+		// } 
+		// else if (strstr(tcp_buffer, "exit") != NULL)
+		// {
+		// 	send_data(uart_args_values.values, client_socket);
+		// 	close(client_socket);
+		// }
+		// else 
+		// {
+        //     const char *error_msg = "Ошибка: неизвестная команда. Используйте GET_DATA\n";
+        //     send(client_socket, error_msg, strlen(error_msg), 0);
+        // }
 
 		// close(client_socket); // закрытие соединения с клиентом 
 	}
